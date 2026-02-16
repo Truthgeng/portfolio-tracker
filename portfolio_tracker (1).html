@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio Tracker</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Manrope:wght@300;400;600;700&display=swap');
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    :root {
+      --bg-primary: #0a0e17;
+      --bg-secondary: #131820;
+      --bg-card: #1a1f2e;
+      --accent-green: #00ff94;
+      --accent-red: #ff3864;
+      --accent-blue: #00d4ff;
+      --accent-purple: #b967ff;
+      --text-primary: #e5e7eb;
+      --text-secondary: #9ca3af;
+      --border: #2a3142;
+    }
+    
+    body {
+      font-family: 'Manrope', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    
+    .bg-grid {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(rgba(0, 255, 148, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 148, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+      padding: 2rem 0;
+      position: relative;
+    }
+    
+    .header h1 {
+      font-size: 3.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+      letter-spacing: -2px;
+      animation: glow 3s ease-in-out infinite;
+    }
+    
+    @keyframes glow {
+      0%, 100% { filter: drop-shadow(0 0 20px rgba(0, 255, 148, 0.3)); }
+      50% { filter: drop-shadow(0 0 30px rgba(0, 255, 148, 0.5)); }
+    }
+    
+    .header p {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent-green), var(--accent-blue));
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--accent-green);
+      box-shadow: 0 10px 40px rgba(0, 255, 148, 0.2);
+    }
+    
+    .stat-label {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+    
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    
+    .stat-change {
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    
+    .positive { color: var(--accent-green); }
+    .negative { color: var(--accent-red); }
+    
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+    
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      transition: all 0.3s ease;
+    }
+    
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .card-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    
+    .btn {
+      background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+      color: #0a0e17;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Manrope', sans-serif;
+      font-size: 0.95rem;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(0, 255, 148, 0.4);
+    }
+    
+    .btn-secondary {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+    
+    .btn-secondary:hover {
+      background: var(--border);
+      box-shadow: 0 5px 20px rgba(42, 49, 66, 0.4);
+    }
+    
+    .input-group {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    input {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem;
+      color: var(--text-primary);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+    }
+    
+    input:focus {
+      outline: none;
+      border-color: var(--accent-green);
+      box-shadow: 0 0 0 3px rgba(0, 255, 148, 0.1);
+    }
+    
+    input::placeholder {
+      color: var(--text-secondary);
+    }
+    
+    .table-container {
+      overflow-x: auto;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    th {
+      background: var(--bg-secondary);
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    
+    td {
+      padding: 1rem;
+      border-top: 1px solid var(--border);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+    }
+    
+    tr {
+      transition: all 0.2s ease;
+    }
+    
+    tr:hover {
+      background: var(--bg-secondary);
+    }
+    
+    .delete-btn {
+      background: transparent;
+      border: 1px solid var(--accent-red);
+      color: var(--accent-red);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.3s ease;
+      font-family: 'Manrope', sans-serif;
+    }
+    
+    .delete-btn:hover {
+      background: var(--accent-red);
+      color: #0a0e17;
+    }
+    
+    .chart-container {
+      height: 300px;
+      margin-top: 2rem;
+      position: relative;
+    }
+    
+    canvas {
+      max-height: 300px;
+    }
+    
+    @media (max-width: 768px) {
+      .input-group {
+        grid-template-columns: 1fr;
+      }
+      
+      .header h1 {
+        font-size: 2rem;
+      }
+      
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .ticker {
+      background: linear-gradient(135deg, rgba(0, 255, 148, 0.1), rgba(0, 212, 255, 0.1));
+      padding: 0.25rem 0.75rem;
+      border-radius: 6px;
+      font-weight: 600;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+  
+  <div class="container">
+    <div class="header">
+      <h1>Portfolio Tracker</h1>
+      <p>Real-time investment tracking & analytics</p>
+    </div>
+    
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Value</div>
+        <div class="stat-value" id="totalValue">$0.00</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-label">Total Cost</div>
+        <div class="stat-value" id="totalCost">$0.00</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-label">Total Gain/Loss</div>
+        <div class="stat-value" id="totalGainLoss">$0.00</div>
+        <div class="stat-change" id="totalGainLossPercent">0.0%</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-label">Assets</div>
+        <div class="stat-value" id="assetCount">0</div>
+      </div>
+    </div>
+    
+    <div class="main-content">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Add Investment</h2>
+        </div>
+        
+        <div class="input-group">
+          <input type="text" id="assetName" placeholder="Asset Name (e.g., Apple Inc.)">
+          <input type="text" id="ticker" placeholder="Ticker">
+          <input type="number" id="quantity" placeholder="Quantity" step="0.01">
+          <input type="number" id="purchasePrice" placeholder="Purchase $" step="0.01">
+          <input type="number" id="currentPrice" placeholder="Current $" step="0.01">
+        </div>
+        
+        <button class="btn" onclick="addAsset()">Add Asset</button>
+        <button class="btn btn-secondary" onclick="clearForm()" style="margin-left: 1rem;">Clear</button>
+      </div>
+      
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Holdings</h2>
+        </div>
+        
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Asset</th>
+                <th>Ticker</th>
+                <th>Quantity</th>
+                <th>Purchase Price</th>
+                <th>Current Price</th>
+                <th>Total Cost</th>
+                <th>Current Value</th>
+                <th>Gain/Loss</th>
+                <th>Return %</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="portfolioTable">
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Performance Chart</h2>
+        </div>
+        <div class="chart-container">
+          <canvas id="performanceChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    let portfolio = [];
+    let chart = null;
+    
+    // Load portfolio from storage on page load
+    async function loadPortfolio() {
+      try {
+        const result = await window.storage.get('portfolio-data');
+        if (result && result.value) {
+          portfolio = JSON.parse(result.value);
+          updateDisplay();
+        }
+      } catch (error) {
+        console.log('No existing portfolio data');
+      }
+    }
+    
+    // Save portfolio to storage
+    async function savePortfolio() {
+      try {
+        await window.storage.set('portfolio-data', JSON.stringify(portfolio));
+      } catch (error) {
+        console.error('Error saving portfolio:', error);
+      }
+    }
+    
+    function addAsset() {
+      const assetName = document.getElementById('assetName').value;
+      const ticker = document.getElementById('ticker').value;
+      const quantity = parseFloat(document.getElementById('quantity').value);
+      const purchasePrice = parseFloat(document.getElementById('purchasePrice').value);
+      const currentPrice = parseFloat(document.getElementById('currentPrice').value);
+      
+      if (!assetName || !ticker || !quantity || !purchasePrice || !currentPrice) {
+        alert('Please fill in all fields');
+        return;
+      }
+      
+      const asset = {
+        id: Date.now(),
+        assetName,
+        ticker: ticker.toUpperCase(),
+        quantity,
+        purchasePrice,
+        currentPrice,
+        totalCost: quantity * purchasePrice,
+        currentValue: quantity * currentPrice,
+        gainLoss: (quantity * currentPrice) - (quantity * purchasePrice),
+        returnPercent: ((quantity * currentPrice) - (quantity * purchasePrice)) / (quantity * purchasePrice) * 100
+      };
+      
+      portfolio.push(asset);
+      savePortfolio();
+      updateDisplay();
+      clearForm();
+    }
+    
+    function deleteAsset(id) {
+      portfolio = portfolio.filter(asset => asset.id !== id);
+      savePortfolio();
+      updateDisplay();
+    }
+    
+    function clearForm() {
+      document.getElementById('assetName').value = '';
+      document.getElementById('ticker').value = '';
+      document.getElementById('quantity').value = '';
+      document.getElementById('purchasePrice').value = '';
+      document.getElementById('currentPrice').value = '';
+    }
+    
+    function updateDisplay() {
+      // Update table
+      const tableBody = document.getElementById('portfolioTable');
+      tableBody.innerHTML = '';
+      
+      portfolio.forEach(asset => {
+        const row = document.createElement('tr');
+        const gainLossClass = asset.gainLoss >= 0 ? 'positive' : 'negative';
+        const gainLossSign = asset.gainLoss >= 0 ? '+' : '';
+        
+        row.innerHTML = `
+          <td>${asset.assetName}</td>
+          <td><span class="ticker">${asset.ticker}</span></td>
+          <td>${asset.quantity.toFixed(4)}</td>
+          <td>$${asset.purchasePrice.toFixed(2)}</td>
+          <td>$${asset.currentPrice.toFixed(2)}</td>
+          <td>$${asset.totalCost.toFixed(2)}</td>
+          <td>$${asset.currentValue.toFixed(2)}</td>
+          <td class="${gainLossClass}">${gainLossSign}$${Math.abs(asset.gainLoss).toFixed(2)}</td>
+          <td class="${gainLossClass}">${gainLossSign}${asset.returnPercent.toFixed(2)}%</td>
+          <td><button class="delete-btn" onclick="deleteAsset(${asset.id})">Delete</button></td>
+        `;
+        
+        tableBody.appendChild(row);
+      });
+      
+      // Update stats
+      const totalValue = portfolio.reduce((sum, asset) => sum + asset.currentValue, 0);
+      const totalCost = portfolio.reduce((sum, asset) => sum + asset.totalCost, 0);
+      const totalGainLoss = totalValue - totalCost;
+      const totalGainLossPercent = totalCost > 0 ? (totalGainLoss / totalCost * 100) : 0;
+      
+      document.getElementById('totalValue').textContent = `$${totalValue.toFixed(2)}`;
+      document.getElementById('totalCost').textContent = `$${totalCost.toFixed(2)}`;
+      
+      const gainLossElement = document.getElementById('totalGainLoss');
+      const gainLossPercentElement = document.getElementById('totalGainLossPercent');
+      
+      const gainLossClass = totalGainLoss >= 0 ? 'positive' : 'negative';
+      gainLossElement.className = `stat-value ${gainLossClass}`;
+      gainLossPercentElement.className = `stat-change ${gainLossClass}`;
+      
+      const gainLossSign = totalGainLoss >= 0 ? '+' : '';
+      gainLossElement.textContent = `${gainLossSign}$${Math.abs(totalGainLoss).toFixed(2)}`;
+      gainLossPercentElement.textContent = `${gainLossSign}${totalGainLossPercent.toFixed(2)}%`;
+      
+      document.getElementById('assetCount').textContent = portfolio.length;
+      
+      // Update chart
+      updateChart();
+    }
+    
+    function updateChart() {
+      const ctx = document.getElementById('performanceChart').getContext('2d');
+      
+      if (chart) {
+        chart.destroy();
+      }
+      
+      const labels = portfolio.map(asset => asset.ticker);
+      const values = portfolio.map(asset => asset.currentValue);
+      const colors = portfolio.map(asset => 
+        asset.gainLoss >= 0 ? 'rgba(0, 255, 148, 0.8)' : 'rgba(255, 56, 100, 0.8)'
+      );
+      
+      chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Current Value ($)',
+            data: values,
+            backgroundColor: colors,
+            borderColor: colors.map(color => color.replace('0.8', '1')),
+            borderWidth: 2,
+            borderRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              backgroundColor: 'rgba(26, 31, 46, 0.95)',
+              titleColor: '#e5e7eb',
+              bodyColor: '#e5e7eb',
+              borderColor: '#2a3142',
+              borderWidth: 1,
+              padding: 12,
+              displayColors: false,
+              callbacks: {
+                label: function(context) {
+                  const asset = portfolio[context.dataIndex];
+                  return [
+                    `Value: $${asset.currentValue.toFixed(2)}`,
+                    `Cost: $${asset.totalCost.toFixed(2)}`,
+                    `P/L: ${asset.gainLoss >= 0 ? '+' : ''}$${asset.gainLoss.toFixed(2)}`,
+                    `Return: ${asset.gainLoss >= 0 ? '+' : ''}${asset.returnPercent.toFixed(2)}%`
+                  ];
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: {
+                color: 'rgba(42, 49, 66, 0.3)',
+                drawBorder: false
+              },
+              ticks: {
+                color: '#9ca3af',
+                callback: function(value) {
+                  return '$' + value.toLocaleString();
+                }
+              }
+            },
+            x: {
+              grid: {
+                display: false,
+                drawBorder: false
+              },
+              ticks: {
+                color: '#9ca3af'
+              }
+            }
+          }
+        }
+      });
+    }
+    
+    // Load portfolio when page loads
+    window.addEventListener('load', loadPortfolio);
+  </script>
+</body>
+</html>
